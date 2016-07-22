@@ -3,3 +3,4 @@ weather.log
 .classpath
 .project
 .settings
+target

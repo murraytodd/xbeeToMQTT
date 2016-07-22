@@ -1,4 +1,4 @@
-package com.zoneent.arduino.data;
+package com.murraywilliams.arduino.data;
 
 import java.util.Arrays;
 import java.util.Date;

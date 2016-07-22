@@ -1,4 +1,4 @@
-package com.zoneent.arduino;
+package com.murraywilliams.arduino;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

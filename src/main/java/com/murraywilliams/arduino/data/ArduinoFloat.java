@@ -1,4 +1,4 @@
-package com.zoneent.arduino.data;
+package com.murraywilliams.arduino.data;
 
 public abstract class ArduinoFloat extends ArduinoData {
 	

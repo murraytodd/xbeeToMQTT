@@ -1,11 +1,11 @@
-package com.zoneent.arduino.data;
+package com.murraywilliams.arduino.data;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.zoneent.arduino.ArduinoConversion;
+import com.murraywilliams.arduino.ArduinoConversion;
 
 public class ArduinoMCP9808 extends ArduinoFloat {
 

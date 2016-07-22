@@ -1,10 +1,7 @@
-package com.zoneent.arduino;
+package com.murraywilliams.arduino;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -13,11 +10,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.digi.xbee.api.utils.ByteUtils;
 import com.digi.xbee.api.utils.HexUtils;
-import com.zoneent.arduino.data.ArduinoData;
-import com.zoneent.arduino.data.ArduinoMCP9808;
-import com.zoneent.arduino.data.ArduinoMCP9808.DataTypes;
+import com.murraywilliams.arduino.data.ArduinoData;
 
 public class XBeeCommanderTest {
 
