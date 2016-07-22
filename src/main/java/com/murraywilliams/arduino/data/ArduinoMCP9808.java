@@ -87,4 +87,10 @@ public class ArduinoMCP9808 extends ArduinoFloat {
 		return "MCP9808Temp";
 		
 	}
+	
+	public String toJSON() {
+		List<String> values = new ArrayList<String>();
+		for (double f : getValues(DataTypes.TempF)) values.add(formatter.format(f));
+		return "{ \"type\" : \"MCP9808\", \"values\" : [" + String.join(",",  values) + "] }";
+	}
 }

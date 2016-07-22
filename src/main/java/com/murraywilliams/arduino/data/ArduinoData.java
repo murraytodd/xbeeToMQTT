@@ -46,4 +46,6 @@ public abstract class ArduinoData {
 	public abstract String getLabel();
 	
 	public abstract void printByDate();
+	
+	public abstract String toJSON();
 }
