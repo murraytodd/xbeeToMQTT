@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.murraywilliams.arduino.ArduinoConversion;
+import com.murraywilliams.arduino.data.ArduinoConversion;;
 
 public class ArduinoMCP9808 extends ArduinoFloat {
 
@@ -20,6 +20,7 @@ public class ArduinoMCP9808 extends ArduinoFloat {
 			if (data[i]==0x3A) offset = i + 1;
 		}
 		this.temps = getMCP9808TempC(offset == 0 ? data : Arrays.copyOfRange(data, offset, data.length));
+		this.typeString = "MCP9808";
 	}
 	
 	@Override
@@ -79,7 +80,6 @@ public class ArduinoMCP9808 extends ArduinoFloat {
 		for (int i=0; i<temps.length; i++) {
 			System.out.print(dates[i] + ", " + formatter.format(ftemps[i]) + "\u00b0F");
 		}
-		
 	}
 
 	@Override
@@ -88,9 +88,5 @@ public class ArduinoMCP9808 extends ArduinoFloat {
 		
 	}
 	
-	public String toJSON() {
-		List<String> values = new ArrayList<String>();
-		for (double f : getValues(DataTypes.TempF)) values.add(formatter.format(f));
-		return "{ \"type\" : \"MCP9808\", \"values\" : [" + String.join(",",  values) + "] }";
-	}
+
 }

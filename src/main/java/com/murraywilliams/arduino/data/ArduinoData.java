@@ -11,6 +11,8 @@ public abstract class ArduinoData {
 	
 	protected Date dates[] = null;
 	
+	protected String typeString = "Unknown";
+	
 	public Date[] setDates(long start, long end) {
 		int count = this.getSize();
 		long interval = (end - start) / count;

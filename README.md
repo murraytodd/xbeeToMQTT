@@ -37,8 +37,16 @@ If you are wanting to test/run this on something other than Linux, such as a Mac
 
 #### If the program has runtime problems...
 
-You might need to add something like... 
+If you see an error message like 
 
-```java -Djava.library.path=/usr/lib/jni -cp /usr/share/java/RXTXcomm.jar:.``` 
+```java.lang.UnsatisfiedLinkError: no rxtxSerial in java.library.path thrown while loading gnu.io.RXTXCommDriver```
 
-to the command that launches the program, where the first path is where the native library is kept. (Unfortunately, it will differ based on which OS you're using.)
+You'll need to help the Java Virtual Machine find the native library by either setting your `LD_LIBRARY_PATH` environment variable with
+
+```export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/jni``` 
+
+or specifying with your java command such as
+
+```java -Djava.library.path=/usr/lib/jni```...
+
+Note again that this is OS-specific. The `/usr/lib/jni` path is where `librxtxSerial.so`, the native library used for the Raspberry Pi is kept. If you are using a Mac, you'll want to use whatever directory that `librxtxSerial.jnilib` resides.

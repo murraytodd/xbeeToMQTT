@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.digi.xbee.api.utils.HexUtils;
+import com.murraywilliams.arduino.data.ArduinoConversion;
 import com.murraywilliams.arduino.data.ArduinoData;
 
 public class XBeeCommanderTest {

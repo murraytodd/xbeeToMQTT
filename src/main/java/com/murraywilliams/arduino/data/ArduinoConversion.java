@@ -1,4 +1,4 @@
-package com.murraywilliams.arduino;
+package com.murraywilliams.arduino.data;
 
 import java.util.Arrays;
 
