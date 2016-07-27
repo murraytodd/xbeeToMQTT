@@ -3,7 +3,7 @@ import com.murraywilliams.arduino.data.ArduinoData
 import com.digi.xbee.api.utils.HexUtils
 import com.murraywilliams.arduino.data.ArduinoMCP9808
 
-class HelloSpec extends FlatSpec with Matchers {
+class ArduinoDataSpec extends FlatSpec with Matchers {
   
   "Hello" should "have tests" in {
     true should === (true)
