@@ -29,7 +29,7 @@ public abstract class ArduinoData {
 	
 	public static ArduinoData parseByteArray(byte[] data) {
 		String l = label(data);
-		if (l.equals("Temps:") || (l.equals("MCP9808:")))
+		if (l.equals("Temps:"))
 			return new ArduinoMCP9808(data);
 		return null;
 	}

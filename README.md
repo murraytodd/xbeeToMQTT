@@ -50,3 +50,13 @@ or specifying with your java command such as
 ```java -Djava.library.path=/usr/lib/jni```...
 
 Note again that this is OS-specific. The `/usr/lib/jni` path is where `librxtxSerial.so`, the native library used for the Raspberry Pi is kept. If you are using a Mac, you'll want to use whatever directory that `librxtxSerial.jnilib` resides.
+
+#### Misc Serial Port problems with Mac OS X
+
+If you want get an error that reads like `com.digi.xbee.api.exceptions.InterfaceInUseException: Port /dev/tty.usbserial-FTH14070 is already in use by other application(s)` and looking further down you see `Caused by: gnu.io.PortInUseException: Unknown Application` then your problem is actually that the RXTX library assumes there's a `/var/lock` directory.
+
+Try doing the following (credit goes to [Jerome Bernard](http://www.jerome-bernard.com/blog/2011/11/18/serial-ports-on-mac-os-x/) for this):
+```
+sudo mkdir /var/lock
+sudo chmod go+rwx /var/lock
+```
