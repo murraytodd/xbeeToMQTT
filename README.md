@@ -1,5 +1,25 @@
 # xbeeToMQTT
+
 XBee Java controller that publishes incoming messages to MQTT
+
+	This project has just been converted from Java to Scala. The old Java
+	version can be found in the java-legacy branch. The master branch will
+	leverage Scala. (I'm happy to say, a lot of the tough code that was
+	worth saving is still in src/main/java/.../arduino/data, and Scala is
+	just able to use it straight away. 
+
+## What xbeeToMQTT does
+
+This application serves as a (currently one-way) gateway from IoT devices on an
+XBee radio network to any basic MQTT broker. It handles the tricky work of dealing
+with ZigBee mesh networks, moving the messages into something that's arguably more
+computer/network friendly.
+
+This server was designed to run on a Raspberry Pi attached to Ethernet (specifically,
+my home network) so it could act as my home-IoT server. I have installed the 
+easy-to-use [Mosquitto](https://mosquitto.org) server on my Raspberry Pi for the
+MQTT broker, but you could just as easily use a MQTT broker that is part of some
+cloud IoT platform.
 
 ## Installing Dependencies
 
@@ -9,6 +29,8 @@ connect to and read from the XBee master controller.
 1. DIGI XBee Java Library v1.1.1 [XBeejavaLibaray](https://github.com/digidotcom/XBeeJavaLibrary/releases)
 2. RXTX Java serial library v2.2.x
 3. The accompanying native serial communications libraries
+
+These dependencies are most easily managed by downloading the `xjblib-1.1.1.jar` and `RXTXcomm.jar` files and placing them in the `/lib` directory. You should be able to either package them into a single-jar assembly or manually setup your classpath to point to the right libraries when you're in production. The next sections discuss these dependencies a little bit.
 
 ### XBee Java Libaray v1.1.1
 

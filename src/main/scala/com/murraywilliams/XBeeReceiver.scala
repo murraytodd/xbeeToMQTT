@@ -3,6 +3,7 @@ package com.murraywilliams
 import com.digi.xbee.api.ZigBeeDevice
 import com.typesafe.config.ConfigFactory
 
+
 object XBeeReceiver {
   
   val conf = ConfigFactory.load
@@ -21,6 +22,8 @@ object XBeeReceiver {
   }
   
   def main(args: Array[String]): Unit = {
+    import MQTTClient.mqttClient
+    
     try {
       val listener = new XBeeListener
       xbeeDevice.addDataListener(listener)
@@ -28,7 +31,10 @@ object XBeeReceiver {
      
       while (true) Thread sleep 1000
     } finally {
-      xbeeDevice.close
+      if (xbeeDevice.isOpen) xbeeDevice.close
+      mqttClient match {
+        case Some(client) if client.isConnected => client.close
+      }
     }
   }
 }
