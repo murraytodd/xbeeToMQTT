@@ -1,3 +1,10 @@
+.cache-main
+.cache-tests
+libexec
+lib/*.jar
+bin
+project/target
+
 err.log
 weather.log
 .classpath
