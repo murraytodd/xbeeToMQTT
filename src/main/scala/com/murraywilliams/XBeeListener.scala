@@ -11,6 +11,7 @@ import com.murraywilliams.xbee.NodeIdentifierPacket
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import com.murraywilliams.arduino.data.ArduinoMCP9808
 import com.murraywilliams.arduino.data.ArduinoConversion
+import com.digi.xbee.api.models.ExplicitXBeeMessage
 
 class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
   import MQTTClient.mqttSend
@@ -27,6 +28,11 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
       matchingKeys.foreach(key => nodeIds.remove(key))
     }
     nodeIds(addr64) = nodeId
+  }
+  
+  def explicitDataReceived(msg : ExplicitXBeeMessage) = {
+    logger.info(s"Explicit msg from ${msg.getSourceEndpoint.toHexString} to ${msg.getDestinationEndpoint.toHexString}")
+    dataReceived(msg)
   }
   
   def dataReceived(msg : XBeeMessage) = {
