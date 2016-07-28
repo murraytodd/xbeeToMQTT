@@ -19,6 +19,8 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
   
   def now = java.time.Instant.now().toString
   
+  def toHexString(bytes : Array[Byte]) : String = bytes.map("%02x".format(_)).mkString
+  
   val nodeIds = scala.collection.mutable.Map[String, String]()
   
   def updateNodeTable(nodeId : String, addr64 : String) = {
@@ -33,9 +35,8 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
   
   def dataReceived(msg : XBeeMessage) = {
     val addr64 = msg.getDevice.get64BitAddress.toString
-    val nodeId = nodeIds.getOrElse(addr64, "")
-    logger.warn(s"A message was received from '${nodeId}' at ${addr64}")
-    logger.warn(msg.getDataString)
+    val nodeId = nodeIds.getOrElse(addr64, addr64)
+    logger.info(s"A message was received from '${nodeId}' at ${addr64}: ${toHexString(msg.getData)}")
     val data = msg.getData
     val colonIdx = data.indexOf(':')
     if (colonIdx != -1) {
@@ -43,7 +44,7 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
       val header = new String(data.slice(0,colonIdx))
       if ((header=="Temps") || (header=="MCP9808")) {
         val tempReadingsF = (new ArduinoMCP9808(payload)).getValues(ArduinoMCP9808.DataTypes.TempF)
-        val json= s"""{ "sensor" : "MCP9808", "scale" : "F", "values" : [ ${tempReadingsF.mkString(", ")} ], "timestamp" : $now }"""
+        val json= s"""{ "station" : "$nodeId", "sensor" : "MCP9808", "scale" : "F", "values" : [ ${tempReadingsF.mkString(", ")} ], "timestamp" : "$now" }"""
         mqttSend("readings",json)
       } else if (header.endsWith("F")) {
         val readings = ArduinoConversion.readFloatArray(payload)
@@ -86,3 +87,8 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
     }
   }
 }
+
+object XBeeListener {
+  implicit def toHexString(bytes : Array[Byte]) : String = bytes.map("%02x".format(_)).mkString
+}
+
