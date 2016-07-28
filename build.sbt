@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
 	"org.eclipse.paho" % "org.eclipse.paho.client.mqttv3" % "1.1.0",
 	"org.scalatest" %% "scalatest" % "2.2.4" % "test",
 	"com.typesafe" % "config" % "1.3.0",
-	"org.slf4j" % "slf4j-simple" % "1.7.21",
+	"org.slf4j" % "slf4j-log4j12" % "1.7.21",
 	"org.log4s" %% "log4s" % "1.3.0")
 
 bashScriptExtraDefines += """addJava "-Djava.libaray.path=/usr/lib/jni""""

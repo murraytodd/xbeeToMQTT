@@ -11,12 +11,13 @@ import com.murraywilliams.xbee.NodeIdentifierPacket
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import com.murraywilliams.arduino.data.ArduinoMCP9808
 import com.murraywilliams.arduino.data.ArduinoConversion
-import com.digi.xbee.api.models.ExplicitXBeeMessage
 
 class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
   import MQTTClient.mqttSend
 
   private[this] val logger = org.log4s.getLogger  
+  
+  def now = java.time.Instant.now().toString
   
   val nodeIds = scala.collection.mutable.Map[String, String]()
   
@@ -30,11 +31,6 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
     nodeIds(addr64) = nodeId
   }
   
-  def explicitDataReceived(msg : ExplicitXBeeMessage) = {
-    logger.info(s"Explicit msg from ${msg.getSourceEndpoint.toHexString} to ${msg.getDestinationEndpoint.toHexString}")
-    dataReceived(msg)
-  }
-  
   def dataReceived(msg : XBeeMessage) = {
     val addr64 = msg.getDevice.get64BitAddress.toString
     val nodeId = nodeIds.getOrElse(addr64, "")
@@ -45,9 +41,9 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
     if (colonIdx != -1) {
       val payload = data.slice(colonIdx,data.length)
       val header = new String(data.slice(0,colonIdx))
-      if (header=="Temps") {
+      if ((header=="Temps") || (header=="MCP9808")) {
         val tempReadingsF = (new ArduinoMCP9808(payload)).getValues(ArduinoMCP9808.DataTypes.TempF)
-        val json= s"""{ "sensor" : "MCP9808", "scale" : "F", "values" : [ ${tempReadingsF.mkString(", ")} ] }"""
+        val json= s"""{ "sensor" : "MCP9808", "scale" : "F", "values" : [ ${tempReadingsF.mkString(", ")} ], "timestamp" : $now }"""
         mqttSend("readings",json)
       } else if (header.endsWith("F")) {
         val readings = ArduinoConversion.readFloatArray(payload)
@@ -67,7 +63,9 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
   def packetReceived(packet : XBeePacket) = {
     packet match {
       case genPkt : GenericXBeePacket => {
-        logger.warn(s"Received generic packet with Frame Type value ${genPkt.getFrameTypeValue.toHexString}")
+        val frameTypeHex = s"0x${genPkt.getFrameTypeValue.toHexString}"
+        val frameTypeString = genPkt.getFrameType.getName
+        logger.warn(s"Received generic packet with Frame Type $frameTypeHex '$frameTypeString'")
       }
       case unknown : UnknownXBeePacket if (unknown.getFrameTypeValue==0x95) => {
         val nodeId = new NodeIdentifierPacket(unknown)
