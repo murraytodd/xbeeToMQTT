@@ -52,21 +52,23 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
   }
   
   def dataReceived(msg : XBeeMessage) = {
-    val addr64 = msg.getDevice.get64BitAddress.toString
-    val nodeId = nodeIds.getOrElse(addr64, addr64)
-    val data = msg.getData
-    logger.info(s"A message was received from '${nodeId}' at ${addr64}: ${toHexString(data)}")
-    val colonIdx = data.indexOf(':')
-    if (colonIdx != -1) {
-      val payload = data.slice(colonIdx,data.length)
-      val header = new String(data.slice(0,colonIdx))
-      val json = s"""{ "station" : "$nodeId", "timestamp" : "$now",""" + parseReadings(header, payload).tail
-      
-    } else {
-      logger.info("Could not figure it out. Sending as raw.")
-      mqttSend("raw", msg.getData)
+    try {
+      val addr64 = msg.getDevice.get64BitAddress.toString
+      val nodeId = nodeIds.getOrElse(addr64, addr64)
+      val data = msg.getData
+      logger.info(s"A message was received from '${nodeId}' at ${addr64}: ${toHexString(data)}")
+      val colonIdx = data.indexOf(':')
+      if (colonIdx != -1) {
+        val payload = data.slice(colonIdx,data.length)
+        val header = new String(data.slice(0,colonIdx))
+        val json = s"""{ "station" : "$nodeId", "timestamp" : "$now",""" + parseReadings(header, payload).tail
+      } else {
+        logger.info("Could not figure it out. Sending as raw.")
+        mqttSend("raw", msg.getData)
+      }
+    } catch {
+      case e: Throwable => logger.error(e)("dataReceived listener died")
     }
-    logger.info("ending dataReceived")
   }
   
   def packetReceived(packet : XBeePacket) = {

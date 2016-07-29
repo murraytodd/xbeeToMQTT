@@ -14,8 +14,8 @@ public class ArduinoConversion {
 	public static float readFloat(byte[] dataStream, int offset) throws IllegalArgumentException {
 		if ((offset + 4) > dataStream.length) 
 			throw new IllegalArgumentException("Offset reads past the end of the byte array.");
-		return readFloat(new byte[] { dataStream[3 + offset] , dataStream[2 + offset], 
-				dataStream[1 + offset], dataStream[offset] });
+		return readFloat(new byte[] { dataStream[offset] , dataStream[1 + offset], 
+				dataStream[2 + offset], dataStream[3 + offset] });
 	}
 	
 	public static float[] readFloatArray(byte[] dataStream) throws IllegalArgumentException {
