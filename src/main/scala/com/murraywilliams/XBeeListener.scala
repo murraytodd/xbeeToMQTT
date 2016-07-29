@@ -45,15 +45,18 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
       if ((header=="Temps") || (header=="MCP9808")) {
         val tempReadingsF = (new ArduinoMCP9808(payload)).getValues(ArduinoMCP9808.DataTypes.TempF)
         val json= s"""{ "station" : "$nodeId", "sensor" : "MCP9808", "scale" : "F", "values" : [ ${tempReadingsF.mkString(", ")} ], "timestamp" : "$now" }"""
+        logger.info("Interpreted as old-style MCP9808 temps.")
         mqttSend("readings",json)
       } else if (header.endsWith("F")) {
         val readings = ArduinoConversion.readFloatArray(payload)
         val readingsString = readings.map(_.formatted("%.4f")).mkString(", ")
         val sensor = header.substring(0, header.length-1)
         val json = s"""{ "sensor" : "${sensor}", "values" : [ ${readingsString} ] }"""
+        logger.info(s"Delivery 'F' suffix detected, parsed as floats $readingsString");
         mqttSend("readings",json)
       } else {
         val hexString = payload.map("%02x".format(_)).mkString
+        logger.info("Cannot interpret data type. Passing raw data through.")
         mqttSend("readings",s"""{ "sender" : ${header}, "payload" : ${hexString}""")
       }
     } else {
