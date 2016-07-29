@@ -4,6 +4,7 @@ libexec
 lib/*.jar
 bin
 project/target
+**/*.sc
 
 err.log
 weather.log

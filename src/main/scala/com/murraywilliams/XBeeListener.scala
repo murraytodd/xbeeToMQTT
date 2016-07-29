@@ -59,7 +59,7 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
       logger.info(s"A message was received from '${nodeId}' at ${addr64}: ${toHexString(data)}")
       val colonIdx = data.indexOf(':')
       if (colonIdx != -1) {
-        val payload = data.slice(colonIdx,data.length)
+        val payload = data.slice(colonIdx+1,data.length)
         val header = new String(data.slice(0,colonIdx))
         val json = s"""{ "station" : "$nodeId", "timestamp" : "$now",""" + parseReadings(header, payload).tail
       } else {
