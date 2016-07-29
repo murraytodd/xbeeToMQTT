@@ -62,6 +62,7 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
         val payload = data.slice(colonIdx+1,data.length)
         val header = new String(data.slice(0,colonIdx))
         val json = s"""{ "station" : "$nodeId", "timestamp" : "$now",""" + parseReadings(header, payload).tail
+        mqttSend("readings",json)
       } else {
         logger.info("Could not figure it out. Sending as raw.")
         mqttSend("raw", msg.getData)
