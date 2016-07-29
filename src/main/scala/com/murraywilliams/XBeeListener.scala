@@ -36,9 +36,10 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
   def dataReceived(msg : XBeeMessage) = {
     val addr64 = msg.getDevice.get64BitAddress.toString
     val nodeId = nodeIds.getOrElse(addr64, addr64)
-    logger.info(s"A message was received from '${nodeId}' at ${addr64}: ${toHexString(msg.getData)}")
     val data = msg.getData
+    logger.info(s"A message was received from '${nodeId}' at ${addr64}: ${toHexString(data)}")
     val colonIdx = data.indexOf(':')
+    logger.info(s"Index of char ':' is $colonIdx")
     if (colonIdx != -1) {
       val payload = data.slice(colonIdx,data.length)
       val header = new String(data.slice(0,colonIdx))
@@ -52,7 +53,7 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
         val readingsString = readings.map(_.formatted("%.4f")).mkString(", ")
         val sensor = header.substring(0, header.length-1)
         val json = s"""{ "sensor" : "${sensor}", "values" : [ ${readingsString} ] }"""
-        logger.info(s"Delivery 'F' suffix detected, parsed as floats $readingsString");
+        logger.info(s"Delivery 'F' suffix detected, parsed as floats $readingsString")
         mqttSend("readings",json)
       } else {
         val hexString = payload.map("%02x".format(_)).mkString
@@ -60,8 +61,10 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
         mqttSend("readings",s"""{ "sender" : ${header}, "payload" : ${hexString}""")
       }
     } else {
+      logger.info("Could not figure it out. Sending as raw.")
       mqttSend("raw", msg.getData)
     }
+    logger.info("ending dataReceived")
   }
   
   def packetReceived(packet : XBeePacket) = {
