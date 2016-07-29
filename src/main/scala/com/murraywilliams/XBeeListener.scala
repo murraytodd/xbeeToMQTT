@@ -33,33 +33,35 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
     nodeIds(addr64) = nodeId
   }
   
+  def parseReadings(header : String, payload : Array[Byte]) : String = {
+    if ((header=="Temps") || (header=="MCP9808")) {
+      logger.info("Interpreted as old-style MCP9808 temps.")
+      val tempReadingsF = (new ArduinoMCP9808(payload)).getValues(ArduinoMCP9808.DataTypes.TempF)
+      s"""{ "sensor" : "MCP9808", "scale" : "F", "values" : [ ${tempReadingsF.mkString(", ")} ] }"""
+    } else if (header.endsWith("F")) {
+      val readings = ArduinoConversion.readFloatArray(payload)
+      val readingsString = readings.map(_.formatted("%.4f")).mkString(", ")
+      val sensor = header.substring(0, header.length-1)
+      logger.info(s"Delivery 'F' suffix detected, parsed as floats $readingsString")
+      s"""{ "sensor" : "${sensor}", "values" : [ ${readingsString} ] }"""
+    } else {
+      val hexString = payload.map("%02x".format(_)).mkString
+      logger.info("Cannot interpret data type. Passing raw data through.")
+      s"""{ "sender" : ${header}, "payload" : ${hexString} }"""
+    }
+  }
+  
   def dataReceived(msg : XBeeMessage) = {
     val addr64 = msg.getDevice.get64BitAddress.toString
     val nodeId = nodeIds.getOrElse(addr64, addr64)
     val data = msg.getData
     logger.info(s"A message was received from '${nodeId}' at ${addr64}: ${toHexString(data)}")
     val colonIdx = data.indexOf(':')
-    logger.info(s"Index of char ':' is $colonIdx")
     if (colonIdx != -1) {
       val payload = data.slice(colonIdx,data.length)
       val header = new String(data.slice(0,colonIdx))
-      if ((header=="Temps") || (header=="MCP9808")) {
-        val tempReadingsF = (new ArduinoMCP9808(payload)).getValues(ArduinoMCP9808.DataTypes.TempF)
-        val json= s"""{ "station" : "$nodeId", "sensor" : "MCP9808", "scale" : "F", "values" : [ ${tempReadingsF.mkString(", ")} ], "timestamp" : "$now" }"""
-        logger.info("Interpreted as old-style MCP9808 temps.")
-        mqttSend("readings",json)
-      } else if (header.endsWith("F")) {
-        val readings = ArduinoConversion.readFloatArray(payload)
-        val readingsString = readings.map(_.formatted("%.4f")).mkString(", ")
-        val sensor = header.substring(0, header.length-1)
-        val json = s"""{ "sensor" : "${sensor}", "values" : [ ${readingsString} ] }"""
-        logger.info(s"Delivery 'F' suffix detected, parsed as floats $readingsString")
-        mqttSend("readings",json)
-      } else {
-        val hexString = payload.map("%02x".format(_)).mkString
-        logger.info("Cannot interpret data type. Passing raw data through.")
-        mqttSend("readings",s"""{ "sender" : ${header}, "payload" : ${hexString}""")
-      }
+      val json = s"""{ "station" : "$nodeId", "timestamp" : "$now",""" + parseReadings(header, payload).tail
+      
     } else {
       logger.info("Could not figure it out. Sending as raw.")
       mqttSend("raw", msg.getData)
