@@ -17,6 +17,8 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
 
   private[this] val logger = org.log4s.getLogger  
   
+  val knownScales = Map("HTU21D-F-Temp" -> "C", "HTU21D-F-Hum" -> "%", "MCP9808" -> "C", "BMP085-Temp" -> "C", "BMP085-Pres" -> "hPa" )
+  
   def now = java.time.Instant.now().toString
   
   def toHexString(bytes : Array[Byte]) : String = bytes.map("%02x".format(_)).mkString
@@ -41,10 +43,14 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
     } else if (header.endsWith("F")) {
       val readings = ArduinoConversion.readFloatArray(payload)
       val readingsString = readings.map(_.formatted("%.4f")).mkString(", ")
-      val readingsHexString = com.murraywilliams.FloatHexUtil.floatListToHex(readings.toList, changeEndian = true)
+      val readingsHexString = com.murraywilliams.FloatHexUtil.floatListToHex(readings.toList)
       val sensor = header.substring(0, header.length-1)
       logger.info(s"Delivery 'F' suffix detected, parsed as floats $readingsString")
-      s"""{ "sensor" : "${sensor}", "values" : [ ${readingsString} ], "hexArray" : "${readingsHexString}" }"""
+      val scale = knownScales.get(sensor) match { 
+        case Some(s) => s""", "scale" : "${s}""""
+        case None => ""
+      }
+      s"""{ "sensor" : "${sensor}"${scale}, "values" : [ ${readingsString} ], "hexArray" : "${readingsHexString}" }"""
     } else {
       val hexString = payload.map("%02x".format(_)).mkString
       logger.info("Cannot interpret data type. Passing raw data through.")
