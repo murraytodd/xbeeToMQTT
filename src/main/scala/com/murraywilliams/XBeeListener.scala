@@ -44,7 +44,7 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
       val readingsHexString = com.murraywilliams.FloatHexUtil.floatListToHex(readings.toList, changeEndian = true)
       val sensor = header.substring(0, header.length-1)
       logger.info(s"Delivery 'F' suffix detected, parsed as floats $readingsString")
-      s"""{ "sensor" : "${sensor}", "values" : [ ${readingsString} ], "hexArray" : "" }"""
+      s"""{ "sensor" : "${sensor}", "values" : [ ${readingsString} ], "hexArray" : "${readingsHexString}" }"""
     } else {
       val hexString = payload.map("%02x".format(_)).mkString
       logger.info("Cannot interpret data type. Passing raw data through.")
