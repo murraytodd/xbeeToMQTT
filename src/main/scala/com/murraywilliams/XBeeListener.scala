@@ -41,13 +41,14 @@ class XBeeListener extends IDataReceiveListener with IPacketReceiveListener {
     } else if (header.endsWith("F")) {
       val readings = ArduinoConversion.readFloatArray(payload)
       val readingsString = readings.map(_.formatted("%.4f")).mkString(", ")
+      val readingsHexString = com.murraywilliams.FloatHexUtil.floatListToHex(readings.toList, changeEndian = true)
       val sensor = header.substring(0, header.length-1)
       logger.info(s"Delivery 'F' suffix detected, parsed as floats $readingsString")
-      s"""{ "sensor" : "${sensor}", "values" : [ ${readingsString} ] }"""
+      s"""{ "sensor" : "${sensor}", "values" : [ ${readingsString} ], "hexArray" : "" }"""
     } else {
       val hexString = payload.map("%02x".format(_)).mkString
       logger.info("Cannot interpret data type. Passing raw data through.")
-      s"""{ "sender" : ${header}, "payload" : ${hexString} }"""
+      s"""{ "sender" : "${header}", "payload" : ${hexString} }"""
     }
   }
   

@@ -1,3 +1,7 @@
+# IntelliJ IDEA
+.idea
+*.iml
+
 .cache-main
 .cache-tests
 libexec
